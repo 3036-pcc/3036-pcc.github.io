@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "type": { "$ref": "#/definitions/typeEnum" },
+      "icon": { "$ref": "#/definitions/iconEnum" },
+      "name": { "type": "string", "default": "無名の作品" },
+      "thumbnailSrc": { "type": "string", "default": "./showcase/default_thumbnail.webp" },
+      "downloadUrl": { "type": "string" }
+    },
+    "required": ["type", "icon", "name", "thumbnailSrc"],
+    "allOf": [
+      {
+        "if": {
+          "properties": { "type": { "const": "embed" } }
+        },
+        "then": {
+          "$ref": "#/definitions/embedShowcase"
+        }
+      },
+      {
+        "if": {
+          "properties": { "type": { "const": "image" } }
+        },
+        "then": {
+          "$ref": "#/definitions/imageShowcase"
+        }
+      },
+      {
+        "if": {
+          "properties": { "type": { "const": "model" } }
+        },
+        "then": {
+          "$ref": "#/definitions/modelShowcase"
+        }
+      },
+      {
+        "if": {
+          "properties": { "type": { "const": "scratch" } }
+        },
+        "then": {
+          "$ref": "#/definitions/scratchShowcase"
+        }
+      },
+      {
+        "if": {
+          "properties": { "type": { "const": "link" } }
+        },
+        "then": {
+          "$ref": "#/definitions/linkShowcase"
+        }
+      }
+    ]
+  },
+
+  "definitions": {
+    "typeEnum": {
+      "enum": ["embed", "image", "model", "scratch", "link"]
+    },
+    "iconEnum": {
+      "anyOf": [
+        {
+          "enum": ["media", "model", "game"]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "embedShowcase": {
+      "properties": {
+        "src": { "type": "string" }
+      }
+    },
+    "imageShowcase": {
+      "properties": {
+        "imageSrc": { "type": "string" }
+      }
+    },
+    "modelShowcase": {
+      "properties": {
+        "modelSrc": { "type": "string", "default": "./showcase/default_model.glb" },
+        "clearColor": {
+          "type": "string",
+          "pattern": "0x[0-9A-Fa-f]{6}"
+        }
+      },
+      "required": ["modelSrc"]
+    },
+    "scratchShowcase": {
+      "properties": {
+        "projectId": { "type": "number" },
+        "turbowarp": { "type": "boolean", "default": false }
+      },
+      "required": ["projectId"]
+    },
+    "linkShowcase": {
+      "properties": {
+        "href": { "type": "string", "default": "https://google.com" }
+      },
+      "required": ["href"],
+      "not": {
+        "properties": {
+          "downloadUrl": {}
+        },
+        "required": ["downloadUrl"]
+      }
+    }
+  }
+}

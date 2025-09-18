@@ -1,0 +1,23 @@
+[
+  {
+    "name": "銀河鉄道",
+    "type": "model",
+    "icon": "model",
+    "thumbnailSrc": "./showcase/models/train.png",
+    "modelSrc": "./showcase/models/train.glb",
+    "clearColor": "0x444444"
+  },
+  {
+    "name": "素因数分解ゲーム",
+    "type": "link",
+    "icon": "game",
+    "href": "https://tr100000.github.io/boring-number-game"
+  },
+  {
+    "name": "ケミプラ",
+    "type": "embed",
+    "icon": "game",
+    "thumbnailSrc": "./showcase/games/chemical_platformer.webp",
+    "src": "./showcase/games/chemical_platformer.html"
+  }
+]
