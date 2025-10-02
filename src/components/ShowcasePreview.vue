@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import BaseShowcase from '@/showcase/BaseShowcase';
+import GroupedShowcase from '@/showcase/GroupedShowcase';
 import LinkShowcase from '@/showcase/LinkShowcase';
-import getMaterialSymbolIcon from '@/showcase/loader';
+import utils from '@/showcase/util';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{
@@ -9,13 +11,21 @@ const props = defineProps<{
   showcase: BaseShowcase;
 }>();
 
+const groupedPopup = ref<HTMLDialogElement>();
+
 const router = useRouter();
 
-function onClick() {
-  if (props.showcase instanceof LinkShowcase) {
-    window.open(props.showcase.href, '_blank')?.focus();
+function onClick(showcase: BaseShowcase, childIndex = -1) {
+  if (showcase instanceof LinkShowcase) {
+    window.open(showcase.href, '_blank')?.focus();
+  } else if (showcase instanceof GroupedShowcase) {
+    groupedPopup.value!.showModal();
   } else {
-    router.push(`/showcase/${props.index.valueOf()}`);
+    if (childIndex < 0) {
+      router.push(`/showcase/${props.index.valueOf()}`);
+    } else {
+      router.push(`/showcase/${props.index}/${childIndex}`);
+    }
   }
 }
 </script>
@@ -23,17 +33,50 @@ function onClick() {
 <template>
   <div>
     <h3>{{ showcase.metadata.name }}</h3>
-    <div class="container" @click="onClick">
+    <div class="container" @click="onClick(showcase)">
       <img alt="" :src="showcase.metadata.thumbnailSrc" fetchpriority="low" loading="lazy" />
-      <span class="material-symbols-outlined">{{ getMaterialSymbolIcon(showcase.metadata.icon) }}</span>
+
+      <!-- Type -->
+      <span id="type" class="overlay material-symbols-outlined">{{
+        utils.getMaterialIcon(showcase.metadata.icon)
+      }}</span>
+
+      <!-- Flags -->
+      <div v-if="showcase.metadata.flags.length > 0" id="flags" class="overlay">
+        <span v-for="flag in showcase.metadata.flags" class="material-symbols-outlined">{{
+          utils.getIconForFlag(flag)
+        }}</span>
+      </div>
+
+      <!-- Tags -->
+      <div v-if="showcase.metadata.tags.length > 0" id="tags" class="overlay">
+        <span v-for="tag in showcase.metadata.tags"># {{ utils.getTagDisplayName(tag) }}</span>
+      </div>
     </div>
   </div>
+
+  <dialog ref="groupedPopup" class="element-border" v-if="showcase instanceof GroupedShowcase">
+    <p class="parent-name">{{ showcase.metadata.name }}</p>
+    <div class="child hover-effects element-border" v-for="(child, i) in showcase.children" @click="onClick(child, i)">
+      <p>{{ child.metadata.name }}</p>
+      <div v-if="child.metadata.flags.length > 0" id="child-flags">
+        <span v-for="flag in child.metadata.flags" class="material-symbols-outlined">{{
+          utils.getIconForFlag(flag)
+        }}</span>
+      </div>
+    </div>
+    <button @click="groupedPopup!.close()">閉じる</button>
+  </dialog>
 </template>
 
 <style scoped lang="css">
 .container {
   position: relative;
   margin-top: 0;
+
+  &:hover {
+    transform: scale(1.005);
+  }
 }
 
 img {
@@ -46,26 +89,66 @@ img {
 
   &:hover {
     box-shadow: 0 0 12px var(--color-1);
-    transform: scale(1.005);
   }
 }
 
+.overlay {
+  pointer-events: none;
+}
+
 span {
+  padding: 2px;
+  margin: 2px;
+  user-select: none;
+  pointer-events: none;
+  font-size: 1.75em;
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.75);
+  border-radius: 4px;
+}
+
+#type {
   position: absolute;
   left: 8px;
   top: 8px;
-  padding: 4px;
+}
+
+#flags {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+#tags {
+  position: absolute;
+  left: 8px;
+  bottom: 16px;
+
+  font-size: 0.55em;
+}
+
+dialog {
+  min-width: min(300px, 80vw);
+}
+
+.parent-name {
+  font-size: 2em;
+  margin-bottom: 8px;
+}
+
+.child {
+  display: flex;
+  cursor: pointer;
   user-select: none;
-  pointer-events: none;
-  text-shadow:
-    0.05em 0 white,
-    0 0.05em white,
-    -0.05em 0 white,
-    0 -0.05em white,
-    -0.05em -0.05em white,
-    -0.05em 0.05em white,
-    0.05em -0.05em white,
-    0.05em 0.05em white,
-    0 0 0.25em black;
+  padding: 8px;
+
+  p {
+    flex-grow: 1;
+  }
+}
+
+#child-flags span {
+  background-color: rgba(240, 240, 240, 0.75);
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.75);
 }
 </style>

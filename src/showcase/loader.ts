@@ -1,5 +1,6 @@
 import type BaseShowcase from './BaseShowcase';
 import EmbedShowcase from './EmbedShowcase';
+import GroupedShowcase from './GroupedShowcase';
 import ImageShowcase from './ImageShowcase';
 import LinkShowcase from './LinkShowcase';
 import ModelShowcase from './ModelShowcase';
@@ -18,13 +19,7 @@ export function getShowcases(): Promise<BaseShowcase[]> {
       response.text().then((text) => {
         const jsonArray: any[] = JSON.parse(text);
         let outputArray: BaseShowcase[] = [];
-        jsonArray.forEach((obj) => {
-          try {
-            outputArray.push(parseShowcase(obj));
-          } catch (e: any) {
-            console.error(e);
-          }
-        });
+        jsonArray.forEach((obj) => tryParseShowcase(obj, (s) => outputArray.push(s)));
         loadedShowcases = outputArray;
         resolve(outputArray);
       }),
@@ -32,7 +27,20 @@ export function getShowcases(): Promise<BaseShowcase[]> {
   });
 }
 
-export function parseShowcase(showcaseObj: any): BaseShowcase {
+function tryParseShowcase(showcaseObj: any, consume: (showcase: BaseShowcase) => void) {
+  try {
+    const showcase: BaseShowcase | undefined = parseShowcase(showcaseObj);
+    if (showcase !== undefined) {
+      consume(showcase);
+    } else {
+      console.warn('parseShowcase returned undefined');
+    }
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
+function parseShowcase(showcaseObj: any, isChild: boolean = false): BaseShowcase | undefined {
   const type: string = showcaseObj['type'];
   const metadata = parseMetadata(showcaseObj);
   switch (type) {
@@ -50,35 +58,33 @@ export function parseShowcase(showcaseObj: any): BaseShowcase {
       return new ModelShowcase(modelSrc, clearColor, metadata);
     }
     case 'scratch': {
-      const projectId: number = showcaseObj['projectId'];
+      const projectId: number = showcaseObj['projectId']!;
       const turbowarp: boolean = showcaseObj['turbowarp'] ?? false;
       return new ScratchShowcase(projectId, turbowarp, metadata);
     }
     case 'link': {
-      const href: string = showcaseObj['href'];
+      const href: string = showcaseObj['href']!;
       return new LinkShowcase(href, metadata);
     }
+    case 'grouped': {
+      if (isChild) {
+        throw new TypeError('Nested showcase not allowed');
+      }
+      const children: any[] = showcaseObj['children'];
+      const parsedChildren: BaseShowcase[] = [];
+      children.forEach((c) => tryParseShowcase(c, (s) => parsedChildren.push(s)));
+      return new GroupedShowcase(parsedChildren, metadata);
+    }
+    default:
+      throw new TypeError(`Invalid showcase type ${type}`);
   }
-  throw new TypeError('Invalid showcase type!');
 }
 
 function parseMetadata(showcaseObj: any): ShowcaseMetadata {
   const name: string = showcaseObj['name'] ?? '無名の作品';
   const icon: string = showcaseObj['icon'] ?? 'media';
   const thumbnailSrc: string = showcaseObj['thumbnailSrc'] ?? './showcase/default_thumbnail.webp';
-  const downloadUrl: string = showcaseObj['downloadUrl'] ?? '';
-  return new ShowcaseMetadata(name, icon, thumbnailSrc, downloadUrl);
-}
-
-export default function getMaterialSymbolIcon(icon: string) {
-  switch (icon) {
-    case 'media':
-      return 'image';
-    case 'model':
-      return 'deployed_code';
-    case 'game':
-      return 'stadia_controller';
-    default:
-      return icon;
-  }
+  const flags: string[] = showcaseObj['flags'] ?? [];
+  const tags: string[] = showcaseObj['tags'] ?? [];
+  return new ShowcaseMetadata(name, icon, thumbnailSrc, flags, tags);
 }

@@ -8,9 +8,6 @@ export default class ModelShowcase extends BaseShowcase {
     metadata: ShowcaseMetadata,
   ) {
     super('model', metadata);
-    if (metadata.downloadUrl.length == 0) {
-      metadata.downloadUrl = modelSrc;
-    }
   }
 
   public getComponent() {

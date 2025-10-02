@@ -1,63 +1,81 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "type": { "$ref": "#/definitions/typeEnum" },
-      "icon": { "$ref": "#/definitions/iconEnum" },
-      "name": { "type": "string", "default": "無名の作品" },
-      "thumbnailSrc": { "type": "string", "default": "./showcase/default_thumbnail.webp" },
-      "downloadUrl": { "type": "string" }
-    },
-    "required": ["type", "icon", "name", "thumbnailSrc"],
-    "allOf": [
-      {
-        "if": {
-          "properties": { "type": { "const": "embed" } }
-        },
-        "then": {
-          "$ref": "#/definitions/embedShowcase"
-        }
-      },
-      {
-        "if": {
-          "properties": { "type": { "const": "image" } }
-        },
-        "then": {
-          "$ref": "#/definitions/imageShowcase"
-        }
-      },
-      {
-        "if": {
-          "properties": { "type": { "const": "model" } }
-        },
-        "then": {
-          "$ref": "#/definitions/modelShowcase"
-        }
-      },
-      {
-        "if": {
-          "properties": { "type": { "const": "scratch" } }
-        },
-        "then": {
-          "$ref": "#/definitions/scratchShowcase"
-        }
-      },
-      {
-        "if": {
-          "properties": { "type": { "const": "link" } }
-        },
-        "then": {
-          "$ref": "#/definitions/linkShowcase"
-        }
-      }
-    ]
-  },
+  "items": { "$ref": "#/definitions/showcase" },
 
   "definitions": {
+    "baseProperties": {
+      "properties": {
+        "name": { "type": "string", "default": "無名の作品" },
+        "type": { "$ref": "#/definitions/typeEnum" },
+        "flags": { "$ref": "#/definitions/flags" }
+      },
+      "required": ["name", "type"],
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "embed" } }
+          },
+          "then": {
+            "$ref": "#/definitions/embedShowcase"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "image" } }
+          },
+          "then": {
+            "$ref": "#/definitions/imageShowcase"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "model" } }
+          },
+          "then": {
+            "$ref": "#/definitions/modelShowcase"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "scratch" } }
+          },
+          "then": {
+            "$ref": "#/definitions/scratchShowcase"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "link" } }
+          },
+          "then": {
+            "$ref": "#/definitions/linkShowcase"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "grouped" } }
+          },
+          "then": {
+            "$ref": "#/definitions/groupedShowcase"
+          }
+        }
+      ]
+    },
+
+    "showcase": {
+      "type": "object",
+      "properties": {
+        "icon": { "$ref": "#/definitions/iconEnum" },
+        "thumbnailSrc": { "type": "string", "default": "./showcase/default_thumbnail.webp" },
+        "tags": { "$ref": "#/definitions/tags" }
+      },
+      "$ref": "#/definitions/baseProperties",
+      "required": ["icon", "thumbnailSrc"]
+    },
+
     "typeEnum": {
-      "enum": ["embed", "image", "model", "scratch", "link"]
+      "enum": ["embed", "image", "model", "scratch", "link", "grouped"]
     },
     "iconEnum": {
       "anyOf": [
@@ -69,6 +87,7 @@
         }
       ]
     },
+
     "embedShowcase": {
       "properties": {
         "src": { "type": "string" }
@@ -100,12 +119,32 @@
       "properties": {
         "href": { "type": "string", "default": "https://google.com" }
       },
-      "required": ["href"],
-      "not": {
-        "properties": {
-          "downloadUrl": {}
-        },
-        "required": ["downloadUrl"]
+      "required": ["href"]
+    },
+    "groupedShowcase": {
+      "properties": {
+        "children": { "type": "array", "items": { "$ref": "#/definitions/showcase" } }
+      }
+    },
+
+    "flags": {
+      "type": "array",
+      "items": {
+        "enum": ["external", "keyboard_required"]
+      }
+    },
+
+    "tags": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "enum": ["festival_2025"]
+          },
+          {
+            "type": "string"
+          }
+        ]
       }
     }
   }

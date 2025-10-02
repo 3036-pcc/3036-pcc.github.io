@@ -19,7 +19,7 @@ type RouteLinks = {
       <h1>パソコン部</h1>
     </div>
 
-    <nav class="tab">
+    <nav>
       <RouterLink v-for="(name, route) of routes" :to="`${route}`" class="tablink" exact-active-class="active">
         <p>{{ name }}</p>
       </RouterLink>
@@ -51,6 +51,7 @@ type RouteLinks = {
   width: 100vw;
   height: 100vh;
   background-image: url('/assets/background.webp');
+  background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   box-shadow: 0 0 8px var(--color-2);
@@ -92,7 +93,7 @@ type RouteLinks = {
   width: min(80vw, 800px);
 }
 
-.tab {
+nav {
   display: flex;
   justify-content: center;
   gap: 4px;

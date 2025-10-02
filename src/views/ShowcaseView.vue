@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type BaseShowcase from '@/showcase/BaseShowcase';
+import type GroupedShowcase from '@/showcase/GroupedShowcase';
 import { getShowcases } from '@/showcase/loader';
 import NotFoundShowcase from '@/showcase/NotFoundShowcase';
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
@@ -11,9 +12,19 @@ const router = useRouter();
 const showcaseList = ref<BaseShowcase[]>([]);
 getShowcases().then((list) => (showcaseList.value = list));
 
-const showcaseIndex = computed(() => Number.parseInt(route.params.index as string));
+const parentShowcaseIndex = computed(() => Number.parseInt(route.params.index as string));
+const childShowcaseIndex = computed(() => Number.parseInt((route.params.childIndex as string) ?? '-1'));
 
-const current = computed(() => showcaseList.value[showcaseIndex.value]);
+const showcaseIndex = computed(() => `${parentShowcaseIndex}/${childShowcaseIndex}`);
+
+const parent = computed(() => showcaseList.value[parentShowcaseIndex.value]);
+const current = computed(() => {
+  if (childShowcaseIndex.value < 0) {
+    return parent.value;
+  } else {
+    return (parent.value as GroupedShowcase).children[childShowcaseIndex.value];
+  }
+});
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key == 'Escape') {
@@ -26,10 +37,10 @@ onUnmounted(() => document.removeEventListener('keydown', onKeyDown));
 </script>
 
 <template>
-  <div class="container" v-if="showcaseList.length >= showcaseIndex - 1" :key="showcaseIndex">
+  <div class="container" v-if="showcaseList.length >= parentShowcaseIndex - 1" :key="showcaseIndex">
     <nav>
-      <h1>{{ (current ?? NotFoundShowcase).metadata.name }}</h1>
-      <button><span @click="router.back()" class="material-symbols-outlined"> close </span></button>
+      <h1>{{ (parent ?? NotFoundShowcase).metadata.name }}</h1>
+      <button id="close-button"><span @click="router.back()" class="material-symbols-outlined"> close </span></button>
     </nav>
     <div class="showcase-view">
       <component
@@ -43,10 +54,9 @@ onUnmounted(() => document.removeEventListener('keydown', onKeyDown));
 <style scoped lang="css">
 .container {
   position: absolute;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   justify-content: center;
-  align-items: center;
+  grid-template-rows: repeat(2, 1fr);
   width: 100vw;
   height: 100vh;
 }
@@ -58,9 +68,20 @@ nav {
   font-size: 1.5em;
 }
 
-a, button {
+nav h1 {
+  flex-grow: 1;
+}
+
+#close-button {
+  font-size: 0.75em;
+}
+
+a,
+button {
+  background-color: var(--color-5);
+  border-radius: 8px;
+  padding: 0;
   border: none;
-  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,7 +90,8 @@ a, button {
   transition: 100ms ease-out;
 
   &:hover {
-    transform: scale(1.025);
+    transform: scale(1.02);
+    background-color: var(--color-4);
     color: var(--black-1);
   }
 }

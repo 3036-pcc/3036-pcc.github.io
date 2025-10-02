@@ -4,7 +4,7 @@
       <a target="_blank" href="https://github.com/3036-pcc">
         <img src="/social/github_white.svg" alt="GitHub" />
       </a>
-      <a target="_blank" href="https://www.instagram.com/hoyu_pcc" hidden>
+      <a target="_blank" href="https://www.instagram.com/hoyu_pc">
         <img src="/social/instagram_white.svg" alt="Instagram" />
       </a>
     </div>
@@ -26,13 +26,17 @@ footer {
   box-shadow: 0 0 8px var(--color-2);
 }
 
+.social a {
+  margin: 0 8px;
+}
+
 .social a img {
   width: 3em;
   height: 3em;
   opacity: 50%;
   transition: opacity 250ms;
   padding: 2px;
-  margin: 0 8px;
+  margin: 0;
   border: none;
   border-radius: 4px;
   box-shadow: 0 0 2px darkgray;

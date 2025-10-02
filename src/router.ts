@@ -28,6 +28,10 @@ const router = createRouter({
       component: () => import('./views/ShowcaseView.vue'),
     },
     {
+      path: '/showcase/:index/:childIndex',
+      component: () => import('./views/ShowcaseView.vue'),
+    },
+    {
       path: '/home',
       redirect: '/',
     },

@@ -3,6 +3,7 @@ export default class ShowcaseMetadata {
     public name: string,
     public icon: string,
     public thumbnailSrc: string,
-    public downloadUrl: string,
+    public flags: string[],
+    public tags: string[],
   ) {}
 }

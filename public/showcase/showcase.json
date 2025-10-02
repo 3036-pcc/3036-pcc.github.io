@@ -11,13 +11,34 @@
     "name": "素因数分解ゲーム",
     "type": "link",
     "icon": "game",
+    "flags": ["external"],
     "href": "https://tr100000.github.io/boring-number-game"
+  },
+  {
+    "name": "素数ホッケー",
+    "type": "grouped",
+    "thumbnailSrc": "./showcase/games/prime_hockey.jpg",
+    "flags": ["keyboard_required"],
+    "children": [
+      {
+        "name": "２人でプレイ",
+        "type": "embed",
+        "src": "./showcase/games/prime_hockey.html"
+      },
+      {
+        "name": "１人でプレイ",
+        "type": "embed",
+        "src": "./showcase/games/prime_hockey_single.html"
+      }
+    ]
   },
   {
     "name": "ケミプラ",
     "type": "embed",
     "icon": "game",
-    "thumbnailSrc": "./showcase/games/chemical_platformer.webp",
-    "src": "./showcase/games/chemical_platformer.html"
+    "thumbnailSrc": "./showcase/festival_2025/chemical_platformer.webp",
+    "flags": ["keyboard_required"],
+    "tags": ["festival_2025"],
+    "src": "./showcase/festival_2025/chemical_platformer.html"
   }
 ]

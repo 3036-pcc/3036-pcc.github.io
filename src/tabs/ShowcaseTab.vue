@@ -9,7 +9,8 @@ getShowcases().then((list) => (showcaseList.value = list.slice().reverse()));
 </script>
 
 <template>
-  <p class="info">部員が作成したものの一部を公開し、ここに載せております。</p>
+  <p class="info">部員が公開している作品等をここに掲載しております。</p>
+
   <div class="showcase-container">
     <ShowcasePreview
       v-for="(showcase, index) in showcaseList"
