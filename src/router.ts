@@ -1,22 +1,26 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
+import MainTab from './tabs/MainTab.vue';
+import ShowcaseTab from './tabs/ShowcaseTab.vue';
+import HomeView from './views/HomeView.vue';
+import ShowcaseView from './views/ShowcaseView.vue';
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
       path: '/',
-      component: () => import('./views/HomeView.vue'),
+      component: HomeView,
       children: [
         {
           path: '/',
-          component: () => import('./tabs/MainTab.vue'),
+          component: MainTab,
           meta: {
             tabIndex: 0,
           },
         },
         {
           path: '/showcase',
-          component: () => import('./tabs/ShowcaseTab.vue'),
+          component: ShowcaseTab,
           meta: {
             tabIndex: 2,
           },
@@ -25,11 +29,11 @@ const router = createRouter({
     },
     {
       path: '/showcase/:index',
-      component: () => import('./views/ShowcaseView.vue'),
+      component: ShowcaseView,
     },
     {
       path: '/showcase/:index/:childIndex',
-      component: () => import('./views/ShowcaseView.vue'),
+      component: ShowcaseView,
     },
     {
       path: '/home',
